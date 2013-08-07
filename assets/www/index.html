@@ -1,0 +1,285 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" id="viewport" content="width=device-width, height=device-height, initial-scale=1.0, maximum-scale=1.0, user-scalable=no;" />
+		<title>폰갭 캔버스</title>
+		
+		<style>
+			#canvas01 {
+				border:4px solid green;
+			}
+			
+			@keyframes myslide {
+				from {
+					margin-left:100%
+				}
+				to {
+					margin-left:0%;
+				}
+			}
+			
+			@-moz-keyframes myslide {
+				from {
+					margin-left:100%
+				}
+				to {
+					margin-left:0%;
+				}
+			}
+			
+			@-webkit-keyframes myslide {
+				from {
+					margin-left:100%
+				}
+				to {
+					margin-left:0%;
+				}
+			}
+			
+			@-o-keyframes myslide {
+				from {
+					margin-left:100%
+				}
+				to {
+					margin-left:0%;
+				}
+			}
+			
+			.animClass {
+				animation:myslide 5s;
+				-moz-animation:myslide 5s;
+				-webkit-animation:myslide 5s;
+				-o-animation:myslide 5s;
+			}
+		</style>
+    
+		<script src="cordova-2.7.0.js"></script>
+		<script src="jquery-1.9.1.min.js"></script>
+		<script>
+			var canvas01, 
+				context;
+				
+			var oldX,
+				oldY;
+				
+			var leftValue = 0,
+				intervalObj;
+			
+			function onLoad() {
+				document.addEventListener("deviceready", onDeviceReady, false);
+			}
+
+			function onDeviceReady() {
+				navigator.splashscreen.hide();
+				
+				alert("폰갭이 준비되었습니다.");
+				
+				canvas01 = document.getElementById("canvas01");
+				context = canvas01.getContext("2d");
+				
+				//$("#canvas01").mousedown(onMouseDown);
+				//$("#canvas01").bind("mousedown", onMouseDown);
+				
+				$("#canvas01").bind("touchstart", onTouchStart);
+				$("#canvas01").bind("touchmove", onTouchMove);
+				$("#canvas01").bind("touchend", onTouchEnd);
+				
+				/*
+				canvas01.addEventListener("mousedown", onMouseDown, false);
+				canvas01.addEventListener("mousemove", onMouseMove, false);
+				canvas01.addEventListener("mouseup", onMouseUp, false);
+				*/
+			}
+			
+			function onTouchStart(event) {
+				event.preventDefault();
+				var touch = event.originalEvent.touches[0] || event.originalEvent.changedTouches[0];
+				
+				var curX = touch.pageX - canvas01.offsetLeft;
+				var curY = touch.pageY - canvas01.offsetTop;
+				
+				console.log("onTouchStart() 호출됨 : " + curX + ", " + curY);		
+				
+				oldX = curX;
+				oldY = curY;
+			}
+			
+			function onTouchMove(event) {
+				event.preventDefault();
+				var touch = event.originalEvent.touches[0] || event.originalEvent.changedTouches[0];
+				
+				var curX = touch.pageX - canvas01.offsetLeft;
+				var curY = touch.pageY - canvas01.offsetTop;
+				
+				console.log("onTouchMove() 호출됨 : " + curX + ", " + curY);
+				
+				context.beginPath();
+				context.moveTo(oldX,oldY);
+				context.lineTo(curX,curY);
+				context.closePath();
+				
+				context.stroke();
+				
+				oldX = curX;
+				oldY = curY;
+			}
+			
+			function onTouchEnd(event) {
+				event.preventDefault();
+				var touch = event.originalEvent.touches[0] || event.originalEvent.changedTouches[0];
+				
+				var curX = touch.pageX - canvas01.offsetLeft;
+				var curY = touch.pageY - canvas01.offsetTop;
+				
+				console.log("onTouchEnd() 호출됨 : " + curX + ", " + curY);
+			}
+			
+			function doDraw01() {				
+				context.fillStyle = "red";
+				context.fillRect(20,20,120,120);
+			}
+			
+			function doDraw02() {
+				context.beginPath();
+				context.moveTo(20,20);
+				context.lineTo(200,20);
+				context.quadraticCurveTo(200,200,20,200);
+				context.closePath();
+				
+				context.stroke();
+			}
+			
+			function doAnim01() {				
+				/*
+				intervalObj = setInterval(function() {
+					console.log("setInterval 호출됨");
+					
+					leftValue = leftValue + 20;
+					var leftMargin = leftValue+"px";
+					
+					$("#area01").css({"margin-left":leftMargin})
+				}, 1000);
+				*/
+				
+				$("#area01").animate({"margin-left":"100%"}, 5000);
+			}
+			
+			function doAnimStop() {
+				clearInterval(intervalObj);
+			}
+			
+			function doAnimBack() {
+				$("#area01").addClass("animClass");
+			}
+			
+			function doTest01() {
+				var Person = {};
+				
+				var nameObject = "소녀시대";
+				var ageObject = 20;				
+				
+				Person["name"] = nameObject;
+				Person["age"] = ageObject;
+				
+				var result = document.getElementById("result");
+				result.innerHTML = "name : " + Person.name;
+			}
+			
+			function doTest02() {
+				var Person = {"name":"소녀시대","age":20};
+				
+				var result = document.getElementById("result");
+				result.innerHTML = "name : " + Person.name;
+			}
+			
+			function doTest03() {
+				var Person = {};
+				
+				var nameObject = "소녀시대";
+				var ageObject = 20;				
+				
+				Person["name"] = nameObject;
+				Person["age"] = ageObject;
+				
+				Person["add"] = function(a, b) {
+					return a + b;
+				}
+				
+				var result = document.getElementById("result");
+				result.innerHTML = "add(10,20) : " + Person.add(10,20);
+			}
+			
+			function doCapture01() {
+				navigator.camera.getPicture(onCameraSuccess, onCameraError, {quality:50,destinationType:Camera.DestinationType.FILE_URI})
+			}
+			
+			function doCapture02() {
+				navigator.device.capture.captureImage(onCaptureSuccess, onCaptureError, {limit:1});
+			}
+			
+			function onCaptureSuccess(fileList) {
+				if (!!fileList) {
+					var len = fileList.length;
+					console.log("fileList length : " + len);
+					
+					for (var i=0; i<len; i++){
+						var uri = fileList[i].fullPath;
+						console.log("picture URI : "+uri);
+						
+						//$("#result").html('<img src="'+uri+'" width="50%"/>');
+						
+						var imageObj = new Image();
+						imageObj.onload = function() {
+							context.drawImage(imageObj, 0, 0, canvas01.width, canvas01.height);
+						}
+						
+						imageObj.src = uri;
+						
+						
+					}
+				}
+			}
+			
+			function onCaptureError(error) {
+				
+			}
+			
+			function onCameraSuccess(uri) {
+				$("#result").html('<img src="'+uri+'" width="50%"/>');
+			}
+			
+			function onCameraError(error) {
+				
+			}
+						
+    	</script>
+	</head>
+	<body onload="onLoad()">
+		<h1>폰갭 캔버스</h1>
+		<p>
+			캔버스 테스트입니다.
+		</p>
+		
+		<canvas id="canvas01" width="300" height="300"> </canvas>
+		
+		<p id="result"></p>
+		
+		<div>
+			<input type="button" value="그리기 01" onclick="doDraw01()" />
+			<input type="button" value="그리기 02" onclick="doDraw02()" />
+			<input type="button" value="애니메이션 01" onclick="doAnim01()" />
+			<input type="button" value="애니메이션 중지" onclick="doAnimStop()" />
+			<input type="button" value="애니메이션 원위치" onclick="doAnimBack()" />
+			<input type="button" value="test01" onclick="doTest01()" />
+			<input type="button" value="test02" onclick="doTest02()" />
+			<input type="button" value="test03" onclick="doTest03()" />
+			<input type="button" value="사진찍기 01" onclick="doCapture01()" />
+			<input type="button" value="사진찍기 02" onclick="doCapture02()" />
+		</div>
+		
+		<div id="area01">
+			<img src="car1.png"/>
+		</div>
+	</body>
+</html>
